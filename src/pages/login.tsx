@@ -22,6 +22,7 @@ export default function LoginView() {
     error: authError,
   } = useAuthenticate(redirectUri);
   const {
+    createAccount,
     fetchAccounts,
     setCurrentAccount,
     currentAccount,
@@ -48,7 +49,9 @@ export default function LoginView() {
   }
 
   function goToSignUp() {
-    router.push('/');
+    // router.push('/');
+    router.replace(window.location.pathname, undefined, { shallow: true });
+    createAccount(authMethod);
   }
 
   useEffect(() => {

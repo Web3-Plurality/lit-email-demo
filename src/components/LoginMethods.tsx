@@ -36,11 +36,11 @@ export default function LoginMethods({
             <AuthMethods
               setView={setView}
             />
-            <div className="buttons-container">
+            {/* <div className="buttons-container">
               <button type="button" className="btn btn--link" onClick={signUp}>
                 Need an account? Sign up
               </button>
-            </div>
+            </div> */}
           </>
         )}
         {view === 'email' && (
