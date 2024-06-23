@@ -38,9 +38,9 @@ export default function SignUpMethods({
               Lit-powered programmable MPC wallets, you won&apos;t have to worry
               about seed phrases.
             </p>
-            <AuthMethods
+            {/* <AuthMethods
               setView={setView}
-            />
+            /> */}
             <div className="buttons-container">
               <button
                 type="button"
