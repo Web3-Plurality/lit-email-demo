@@ -1,9 +1,11 @@
-import { IRelayPKP, SessionSigs } from '@lit-protocol/types';
+import { AccessControlConditions, IRelayPKP, SessionSigs } from '@lit-protocol/types';
 import { ethers } from 'ethers';
 import { useState } from 'react';
 import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
 import { useRouter } from 'next/router';
 import { useDisconnect } from 'wagmi';
+import { litNodeClient } from '../utils/lit';
+import * as LitJsSdk from "@lit-protocol/lit-node-client";
 
 interface DashboardProps {
   currentAccount: IRelayPKP;
@@ -15,6 +17,11 @@ export default function Dashboard({
   sessionSigs,
 }: DashboardProps) {
   const [message, setMessage] = useState<string>('Free the web!');
+  const [encMessage, setEncMessage] = useState<string>('');
+  const [decMessage, setDecMessage] = useState<string>('');
+
+  const [dataToEncHash, setDataToEncHash] = useState<string>('');
+
   const [signature, setSignature] = useState<string>();
   const [recoveredAddress, setRecoveredAddress] = useState<string>();
   const [verified, setVerified] = useState<boolean>(false);
@@ -23,6 +30,20 @@ export default function Dashboard({
 
   const { disconnectAsync } = useDisconnect();
   const router = useRouter();
+
+  const accessControlConditions: AccessControlConditions = [
+    {
+      contractAddress: "",
+      standardContractType: "",
+      chain: "ethereum",
+      method: "eth_getBalance",
+      parameters: [":userAddress", "latest"],
+      returnValueTest: {
+        comparator: ">=",
+        value: "0", // 0 ETH
+      },
+    },
+  ];
 
   /**
    * Sign a message with current PKP
@@ -51,6 +72,80 @@ export default function Dashboard({
         currentAccount.ethAddress.toLowerCase() === recoveredAddr.toLowerCase();
       setVerified(verified);
     } catch (err) {
+      console.error(err);
+      setError(err);
+    }
+
+    setLoading(false);
+  }
+
+  /**
+   * Sign a message with current PKP
+   */
+  async function encryptMessageWithPKP() {
+    setLoading(true);
+    
+    
+    try {
+      // Encrypt the message
+      const { ciphertext, dataToEncryptHash } = await LitJsSdk.encryptString(
+        {
+          accessControlConditions,
+          dataToEncrypt: message,
+          chain: 'ethereum',
+          sessionSigs: sessionSigs
+        },
+        litNodeClient,
+      );
+      setEncMessage(ciphertext);
+      setDataToEncHash(dataToEncryptHash);
+      setLoading(false);
+
+      // Return the ciphertext and dataToEncryptHash
+      return {
+        ciphertext,
+        dataToEncryptHash,
+      };
+    } catch (err) {
+      alert(err);
+      console.error(err);
+      setError(err);
+    }
+
+    setLoading(false);
+  }
+
+  
+  /**
+   * Sign a message with current PKP
+   */
+  async function decryptMessageWithPKP() {
+    setLoading(true);
+    
+    
+    try {
+      console.log("Enc string: ", encMessage);
+      console.log("Data to encrypt hash: ", dataToEncHash);
+      // Encrypt the message
+      const decryptedMessage  = await LitJsSdk.decryptToString(
+        {
+          accessControlConditions,
+          ciphertext: encMessage,
+          dataToEncryptHash: dataToEncHash,
+          chain: 'ethereum',
+          sessionSigs: sessionSigs
+        },
+        litNodeClient,
+      );
+      setDecMessage(decryptedMessage);
+      setLoading(false);
+
+      // Return the ciphertext and dataToEncryptHash
+      return {
+        decryptedMessage
+      };
+    } catch (err) {
+      alert(err);
       console.error(err);
       setError(err);
     }
@@ -98,6 +193,28 @@ export default function Dashboard({
             <span>Sign message</span>
           )}
         </button>
+
+
+
+        <p>Encrypted message</p>
+        <p className="message-card__prompt">{encMessage}</p>
+        <button
+          onClick={encryptMessageWithPKP}
+          disabled={loading}
+        >
+          <span>Encrypt message</span>
+        </button>
+
+        <p>Decrypted message</p>
+        <p className="message-card__prompt">{decMessage}</p>
+        <button
+          onClick={decryptMessageWithPKP}
+          disabled={loading}
+        >
+          <span>Decrypt message</span>
+        </button>
+
+
       </div>
     </div>
   );

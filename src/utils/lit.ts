@@ -1,12 +1,10 @@
 import {
-  DiscordProvider,
-  GoogleProvider,
-  EthWalletProvider,
   WebAuthnProvider,
   LitAuthClient,
   BaseProvider,
 } from '@lit-protocol/lit-auth-client';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
+
 import {
   AuthMethodScope,
   AuthMethodType,
@@ -17,7 +15,6 @@ import {
   GetSessionSigsProps,
   IRelayPKP,
   SessionSigs,
-  AuthCallbackParams,
 } from '@lit-protocol/types';
 
 export const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'localhost';
