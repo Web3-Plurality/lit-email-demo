@@ -35,7 +35,7 @@ export default function Dashboard({
     {
       contractAddress: "",
       standardContractType: "",
-      chain: "ethereum",
+      chain: "ethereum", // todo: this needs to be ethereum otherwise throws an error! Need to see
       method: "eth_getBalance",
       parameters: [":userAddress", "latest"],
       returnValueTest: {
@@ -92,7 +92,7 @@ export default function Dashboard({
         {
           accessControlConditions,
           dataToEncrypt: message,
-          chain: 'ethereum',
+          chain: process.env.NEXT_PUBLIC_CHAIN_NAME,
           sessionSigs: sessionSigs
         },
         litNodeClient,
@@ -107,7 +107,6 @@ export default function Dashboard({
         dataToEncryptHash,
       };
     } catch (err) {
-      alert(err);
       console.error(err);
       setError(err);
     }
@@ -132,7 +131,7 @@ export default function Dashboard({
           accessControlConditions,
           ciphertext: encMessage,
           dataToEncryptHash: dataToEncHash,
-          chain: 'ethereum',
+          chain: process.env.NEXT_PUBLIC_CHAIN_NAME,
           sessionSigs: sessionSigs
         },
         litNodeClient,
@@ -145,7 +144,6 @@ export default function Dashboard({
         decryptedMessage
       };
     } catch (err) {
-      alert(err);
       console.error(err);
       setError(err);
     }

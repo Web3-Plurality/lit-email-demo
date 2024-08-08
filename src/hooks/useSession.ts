@@ -27,10 +27,9 @@ export default function useSession() {
         // owner wallet which has the capacity NFT
         const DAPP_OWNER_WALLET = new ethers.Wallet(process.env.NEXT_PUBLIC_DAPP_OWNER_WALLET_PRIVATE_KEY);
         // create capacity nft delegation
-        alert(process.env.NEXT_PUBLIC_CAPACITY_TOKEN_ID);
         const { capacityDelegationAuthSig } =
         await litNodeClient.createCapacityDelegationAuthSig({
-          uses: '1000',
+          uses: process.env.NEXT_PUBLIC_NUMBER_OF_DELEGATED_OPERATIONS,
           dAppOwnerWallet: DAPP_OWNER_WALLET,
           capacityTokenId: process.env.NEXT_PUBLIC_CAPACITY_TOKEN_ID,
           delegateeAddresses: [pkp.ethAddress],
@@ -57,15 +56,14 @@ export default function useSession() {
             pkpPublicKey: pkp.publicKey,  // public key of the wallet which is delegated
             expiration: params.expiration,
             resources: params.resources,
-            chainId: 1,
+            chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
           });
   
-          console.log("this is used");
           return response.authSig;
         };
         
         // Prepare session sigs params
-        const chain = 'ethereum';
+        const chain = process.env.NEXT_PUBLIC_CHAIN_NAME;
         const resourceAbilities = [
           {
             resource: new LitActionResource('*'),
@@ -94,7 +92,7 @@ export default function useSession() {
 
 
         // try signing via lit action --> works
-        const res = await litNodeClient.executeJs({
+        /*const res = await litNodeClient.executeJs({
           sessionSigs: sessionSigs,
           code: `(async () => {
               const sigShare = await LitActions.signEcdsa({
@@ -123,7 +121,7 @@ export default function useSession() {
         await pkpWallet.init();
   
         const signature = await pkpWallet.signMessage('Free the web!');  // -----> this returns timeout
-        console.log(signature);
+        console.log(signature);*/
 
       } catch (err) {
         setError(err);
