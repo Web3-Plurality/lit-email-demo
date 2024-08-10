@@ -255,7 +255,7 @@ export default function Dashboard({
           onClick={sendTokens}
           disabled={loading}
         >
-          <span>Send 0.001 token</span>
+          <span>Send 0.0000001 token</span>
         </button>
 
 
