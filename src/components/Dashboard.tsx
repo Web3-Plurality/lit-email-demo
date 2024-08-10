@@ -161,32 +161,26 @@ export default function Dashboard({
 
   async function sendTokens() {
     try {
-      console.log("Send transaction");
+
       const pkpWallet = new PKPEthersWallet({
         controllerSessionSigs: sessionSigs,
         pkpPubKey: currentAccount.publicKey,
         litNetwork: 'habanero',
         debug: true,
-        rpc: "https://ethereum-sepolia.rpc.subquery.network/public"
+        rpc: process.env.NEXT_PUBLIC_CHAIN_RPC
       });
       await pkpWallet.init();
-      //await pkpWallet.setChainId(parseInt(process.env.NEXT_PUBLIC_CHAIN_ID));
-      let _nonce = await pkpWallet.getTransactionCount() + 1;
-      console.log("nonce: "+ _nonce);
-    const tx: ethers.providers.TransactionRequest = {
-      to: "0xD2a203D54845dcF9EBcBF1620dfCd567b323EBf1",
-      value: ethers.utils.parseEther("0.0000001"),
-      //gasLimit: ethers.utils.hexlify(21000),
-      //from: pkpWallet.address,
-      //nonce: _nonce,
-      //chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
-    }
-    // -- Sign Transaction
-    const signedTx = await pkpWallet.signTransaction(tx);
-    console.log("signedTx:", signedTx);
 
-    const tx_response = await pkpWallet.sendTransaction(signedTx);
-    console.log(tx_response);
+      const tx: ethers.providers.TransactionRequest = {
+        to: "0xD2a203D54845dcF9EBcBF1620dfCd567b323EBf1",
+        value: ethers.utils.parseEther("0.0000001"),
+      }
+      // -- Sign Transaction
+      const signedTx = await pkpWallet.signTransaction(tx);
+      console.log("signedTx:", signedTx);
+
+      const tx_response = await pkpWallet.sendTransaction(signedTx);
+      console.log(tx_response);
     }
     catch(e) {
       console.log(e);
