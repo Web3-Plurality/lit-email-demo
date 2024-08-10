@@ -1,8 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  isSignInRedirect,
-  getProviderFromUrl,
-} from '@lit-protocol/lit-auth-client';
 import { AuthMethod } from '@lit-protocol/types';
 import {
   authenticateWithStytch,

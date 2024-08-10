@@ -6,6 +6,9 @@ import { useRouter } from 'next/router';
 import { useDisconnect } from 'wagmi';
 import { litNodeClient } from '../utils/lit';
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
+import { useBalance } from 'wagmi'
+
+
 
 interface DashboardProps {
   currentAccount: IRelayPKP;
@@ -30,6 +33,11 @@ export default function Dashboard({
 
   const { disconnectAsync } = useDisconnect();
   const router = useRouter();
+
+  const { data: balance, isError, isLoading } = useBalance({
+    address: `0x${currentAccount.ethAddress.slice(2)}`,
+    chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID)
+  });
 
   const accessControlConditions: AccessControlConditions = [
     {
@@ -151,6 +159,40 @@ export default function Dashboard({
     setLoading(false);
   }
 
+  async function sendTokens() {
+    try {
+
+      const pkpWallet = new PKPEthersWallet({
+        controllerSessionSigs: sessionSigs,
+        pkpPubKey: currentAccount.publicKey,
+        litNetwork: 'habanero',
+        debug: true,
+        rpc: "https://ethereum-sepolia.rpc.subquery.network/public"
+      });
+      await pkpWallet.init();
+      await pkpWallet.setChainId(parseInt(process.env.NEXT_PUBLIC_CHAIN_ID));
+      let _nonce = await pkpWallet.getTransactionCount() + 1;
+      console.log("nonce: "+ _nonce);
+    const tx: ethers.providers.TransactionRequest = {
+      to: "0xD2a203D54845dcF9EBcBF1620dfCd567b323EBf1",
+      value: ethers.utils.parseEther("0.0000001"),
+      gasLimit: ethers.utils.hexlify(21000),
+      from: pkpWallet.address,
+      nonce: _nonce,
+      chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
+    }
+    // -- Sign Transaction
+    const signedTx = await pkpWallet.signTransaction(tx);
+    console.log("signedTx:", signedTx);
+
+    const tx_response = await pkpWallet.sendTransaction(signedTx);
+    console.log(tx_response);
+    }
+    catch(e) {
+      console.log(e);
+    }
+  }
+
   async function handleLogout() {
     try {
       await disconnectAsync();
@@ -210,6 +252,16 @@ export default function Dashboard({
           disabled={loading}
         >
           <span>Decrypt message</span>
+        </button>
+
+
+        <p>Balance on {process.env.NEXT_PUBLIC_CHAIN_NAME} chain</p>
+        <p className="message-card__prompt">{balance?.formatted}</p>
+        <button
+          onClick={sendTokens}
+          disabled={loading}
+        >
+          <span>Send 0.001 token</span>
         </button>
 
 

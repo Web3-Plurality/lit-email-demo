@@ -1,7 +1,7 @@
 import { AppProps } from 'next/app';
 import '../styles/globals.css';
 import { WagmiConfig, createClient, configureChains } from 'wagmi';
-import { goerli, mainnet, optimism } from 'wagmi/chains';
+import { goerli, mainnet, optimism, polygonMumbai, sepolia } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
@@ -11,7 +11,7 @@ import { Albert_Sans } from 'next/font/google';
 import Image from 'next/image';
 
 const { provider, chains } = configureChains(
-  [mainnet, goerli, optimism],
+  [mainnet, goerli, optimism, polygonMumbai, sepolia],
   [publicProvider()]
 );
 
