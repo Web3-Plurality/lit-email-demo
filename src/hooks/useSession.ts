@@ -37,75 +37,6 @@ export default function useSession() {
 
         console.log("Capacity NFT created");
 
-        /*const pkpAuthNeededCallback = async (params:AuthCallbackParams) => {
-          console.log(params.expiration);
-          console.log(params.resources);
-          console.log(params.resourceAbilityRequests);
-          console.log(params.statement);
-          // -- validate
-          if (!params.expiration) {
-            throw new Error('expiration is required');
-          }
-  
-          if (!params.resources) {
-            throw new Error('resources is required');
-          }
-
-          if (!params.resourceAbilityRequests) {
-            throw new Error('resource abilities required');
-          }
-  
-          try {
-          const response = await litNodeClient.signSessionKey({
-            statement: params.statement,
-            authMethods: [authMethod],  // authMethods for signing the sessionSigs
-            pkpPublicKey: pkp.publicKey,  // public key of the wallet which is delegated
-            expiration: params.expiration,
-            resources: params.resources,
-            //domain: window.location.host,
-            //chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
-            //resourceAbilityRequests: params.resourceAbilityRequests,
-
-          });
-          console.log(response);
-          return response.authSig;
-          }
-          catch (error)
-          {
-            throw error;
-          }
-        };
-        
-        // Prepare session sigs params
-        const chain = process.env.NEXT_PUBLIC_CHAIN_NAME;
-        const resourceAbilities = [
-          {
-            resource: new LitActionResource('*'),
-            ability: LitAbility.PKPSigning,
-          }
-        ];
-        const expiration = new Date(
-          Date.now() + 1000 * 60 * 60 * 24 * 7
-        ).toISOString(); // 1 week
-
-
-        console.log("Calling getsessionsigs");
-        // Generate session sigs
-        const sessionSigs = await getSessionSigs({
-          pkpPublicKey: pkp.publicKey,
-          authMethod,
-          //@ts-ignore
-          sessionSigsParams: {
-            chain,
-            expiration,
-            resourceAbilityRequests: resourceAbilities,
-            authNeededCallback: pkpAuthNeededCallback,
-            capacityDelegationAuthSig,
-          },
-        });
-
-        console.log("Calling getsessionsigs DONE");*/
-
         const sessionSigs = await litNodeClient.getPkpSessionSigs({
           pkpPublicKey: pkp.publicKey!,
           capabilityAuthSigs: [capacityDelegationAuthSig],
@@ -116,44 +47,11 @@ export default function useSession() {
               ability: LitAbility.PKPSigning,
             },
           ],
-          expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 minutes
+          expiration: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(), // 1 week
         });
         console.log("✅ Got PKP Session Sigs");
 
         setSessionSigs(sessionSigs);
-
-
-        // try signing via lit action --> works
-        /*const res = await litNodeClient.executeJs({
-          sessionSigs: sessionSigs,
-          code: `(async () => {
-              const sigShare = await LitActions.signEcdsa({
-                toSign: dataToSign,
-                publicKey,
-                sigName: "sig",
-              });
-            })();`,
-          authMethods: [],
-          jsParams: {     // parameters to js function above
-            dataToSign: ethers.utils.arrayify(
-              ethers.utils.keccak256([1, 2, 3, 4, 5])
-            ),
-            publicKey: pkp.publicKey,
-          },
-        });
-      
-        console.log("signature result ", res); // ----> This works
-
-        const pkpWallet = new PKPEthersWallet({
-          controllerSessionSigs: sessionSigs,
-          pkpPubKey: pkp.publicKey,
-          litNetwork: 'habanero',
-          debug: true
-        });
-        await pkpWallet.init();
-  
-        const signature = await pkpWallet.signMessage('Free the web!');  // -----> this returns timeout
-        console.log(signature);*/
 
       } catch (err) {
         setError(err);
