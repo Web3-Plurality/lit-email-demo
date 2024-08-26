@@ -7,7 +7,8 @@ import { useDisconnect } from 'wagmi';
 import { litNodeClient } from '../utils/lit';
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import { useBalance } from 'wagmi'
-
+import { LitNetwork } from "@lit-protocol/constants";
+import { LIT_RPC } from "@lit-protocol/constants";
 
 
 interface DashboardProps {
@@ -63,7 +64,7 @@ export default function Dashboard({
       const pkpWallet = new PKPEthersWallet({
         controllerSessionSigs: sessionSigs,
         pkpPubKey: currentAccount.publicKey,
-        litNetwork: 'habanero',
+        litNodeClient: litNodeClient,
         debug: true
       });
       await pkpWallet.init();
@@ -100,8 +101,8 @@ export default function Dashboard({
         {
           accessControlConditions,
           dataToEncrypt: message,
-          chain: process.env.NEXT_PUBLIC_CHAIN_NAME,
-          sessionSigs: sessionSigs
+          //chain: process.env.NEXT_PUBLIC_CHAIN_NAME,
+          //sessionSigs: sessionSigs
         },
         litNodeClient,
       );
@@ -165,7 +166,7 @@ export default function Dashboard({
       const pkpWallet = new PKPEthersWallet({
         controllerSessionSigs: sessionSigs,
         pkpPubKey: currentAccount.publicKey,
-        litNetwork: 'habanero',
+        litNodeClient: litNodeClient,
         debug: true,
         rpc: process.env.NEXT_PUBLIC_CHAIN_RPC
       });

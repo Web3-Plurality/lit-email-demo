@@ -1,11 +1,10 @@
 import { useCallback, useState } from 'react';
 import { AuthCallbackParams, AuthMethod } from '@lit-protocol/types';
 import { getSessionSigs, litNodeClient } from '../utils/lit';
-import { LitAbility, LitActionResource } from '@lit-protocol/auth-helpers';
+import { LitAbility, LitActionResource, LitPKPResource } from '@lit-protocol/auth-helpers';
 import { IRelayPKP } from '@lit-protocol/types';
 import { SessionSigs } from '@lit-protocol/types';
 import { ethers } from 'ethers';
-import { PKPEthersWallet } from '@lit-protocol/pkp-ethers';
 
 export default function useSession() {
   const [sessionSigs, setSessionSigs] = useState<SessionSigs>();
@@ -36,7 +35,9 @@ export default function useSession() {
           domain:window.location.host
         });
 
-        const pkpAuthNeededCallback = async (params:AuthCallbackParams) => {
+        console.log("Capacity NFT created");
+
+        /*const pkpAuthNeededCallback = async (params:AuthCallbackParams) => {
           console.log(params.expiration);
           console.log(params.resources);
           console.log(params.resourceAbilityRequests);
@@ -49,17 +50,30 @@ export default function useSession() {
           if (!params.resources) {
             throw new Error('resources is required');
           }
+
+          if (!params.resourceAbilityRequests) {
+            throw new Error('resource abilities required');
+          }
   
+          try {
           const response = await litNodeClient.signSessionKey({
-            statement: 'Free the web!',
+            statement: params.statement,
             authMethods: [authMethod],  // authMethods for signing the sessionSigs
             pkpPublicKey: pkp.publicKey,  // public key of the wallet which is delegated
             expiration: params.expiration,
             resources: params.resources,
-            chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
+            //domain: window.location.host,
+            //chainId: parseInt(process.env.NEXT_PUBLIC_CHAIN_ID),
+            //resourceAbilityRequests: params.resourceAbilityRequests,
+
           });
-  
+          console.log(response);
           return response.authSig;
+          }
+          catch (error)
+          {
+            throw error;
+          }
         };
         
         // Prepare session sigs params
@@ -68,12 +82,14 @@ export default function useSession() {
           {
             resource: new LitActionResource('*'),
             ability: LitAbility.PKPSigning,
-          },
+          }
         ];
         const expiration = new Date(
           Date.now() + 1000 * 60 * 60 * 24 * 7
         ).toISOString(); // 1 week
 
+
+        console.log("Calling getsessionsigs");
         // Generate session sigs
         const sessionSigs = await getSessionSigs({
           pkpPublicKey: pkp.publicKey,
@@ -87,6 +103,22 @@ export default function useSession() {
             capacityDelegationAuthSig,
           },
         });
+
+        console.log("Calling getsessionsigs DONE");*/
+
+        const sessionSigs = await litNodeClient.getPkpSessionSigs({
+          pkpPublicKey: pkp.publicKey!,
+          capabilityAuthSigs: [capacityDelegationAuthSig],
+          authMethods: [authMethod],
+          resourceAbilityRequests: [
+            {
+              resource: new LitPKPResource("*"),
+              ability: LitAbility.PKPSigning,
+            },
+          ],
+          expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 minutes
+        });
+        console.log("✅ Got PKP Session Sigs");
 
         setSessionSigs(sessionSigs);
 

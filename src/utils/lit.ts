@@ -5,10 +5,12 @@ import {
 } from '@lit-protocol/lit-auth-client';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 
+
 import {
   AuthMethodScope,
   AuthMethodType,
   ProviderType,
+  LitNetwork,
 } from '@lit-protocol/constants';
 import {
   AuthMethod,
@@ -24,7 +26,7 @@ export const ORIGIN =
     : `http://${DOMAIN}:3000`;
 
 export const litNodeClient: LitNodeClient = new LitNodeClient({
-  litNetwork: 'habanero',
+  litNetwork: LitNetwork.Datil,
   checkNodeAttestation: true,
 });
 
